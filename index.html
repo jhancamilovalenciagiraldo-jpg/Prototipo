@@ -1,0 +1,1394 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="token" content="__TOKEN__">
+<title>Detector de red</title>
+<script>
+try {
+  const tema = localStorage.getItem("detector-tema");
+  if (tema === "claro" || tema === "oscuro") document.documentElement.dataset.tema = tema;
+} catch (e) { /* almacenamiento no disponible: se usa el tema del sistema */ }
+</script>
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16'%3E%3Crect x='1' y='1' width='6' height='6' fill='%231F8A5B'/%3E%3Crect x='9' y='1' width='6' height='6' fill='%23AEB6BC'/%3E%3Crect x='1' y='9' width='6' height='6' fill='%232457C5'/%3E%3Crect x='9' y='9' width='6' height='6' fill='%231F8A5B'/%3E%3C/svg%3E">
+<style>
+:root {
+  --fondo: #EEF1EC;
+  --superficie: #FAFBF8;
+  --tinta: #17242E;
+  --tinta-suave: #4E5C66;
+  --linea: #D3D9D2;
+  --activo: #1F8A5B;
+  --activo-claro: #D7EEDF;
+  --inactivo: #AEB6BC;
+  --alerta: #C8372D;
+  --alerta-claro: #F6DEDB;
+  --aviso: #B7791F;
+  --cable: #2457C5;
+  --cable-claro: #DCE5F8;
+  --texto: "Bahnschrift", "DIN Alternate", "Barlow", "Segoe UI", system-ui, sans-serif;
+  --titulo: "Bahnschrift SemiCondensed", "Bahnschrift", "DIN Condensed", "Barlow Semi Condensed", "Segoe UI", system-ui, sans-serif;
+  --radio: 6px;
+  --barra-fondo: #17242E;
+  --barra-texto: #F2F5F1;
+  --barra-suave: #B9C4CC;
+  --barra-boton: #DDE4E8;
+  --barra-borde: #3B4B57;
+  --barra-borde-hover: #8C9AA4;
+  --primario: #2457C5;
+  --primario-hover: #1C47A0;
+  --libre: #E2E7E1;
+  --campo: #FFFFFF;
+  --cabecera-tabla: #F3F5F1;
+  --fila-hover: #F1F4EF;
+  --invertido-fondo: #17242E;
+  --invertido-texto: #FFFFFF;
+  --sombra: rgba(23, 36, 46, 0.12);
+  --sombra-fuerte: rgba(23, 36, 46, 0.3);
+  --telon: rgba(23, 36, 46, 0.45);
+  color-scheme: light;
+}
+/* Modo oscuro: elegido a mano, o automático si el sistema lo prefiere */
+:root[data-tema="oscuro"] {
+  --fondo: #11181E;
+  --superficie: #19222A;
+  --tinta: #E2E8E5;
+  --tinta-suave: #9DAAB2;
+  --linea: #2B3740;
+  --activo: #2E9E6A;
+  --activo-claro: #16382A;
+  --inactivo: #5E6A72;
+  --alerta: #F06B60;
+  --alerta-claro: #3B1F1D;
+  --aviso: #C98A2E;
+  --cable: #5E8FF0;
+  --cable-claro: #1C2A47;
+  --barra-fondo: #0C1216;
+  --barra-texto: #E2E8E5;
+  --barra-suave: #93A1AA;
+  --barra-boton: #D5DDE2;
+  --barra-borde: #2E3B45;
+  --barra-borde-hover: #6E7E89;
+  --primario: #3366D6;
+  --primario-hover: #2A57BC;
+  --libre: #222C35;
+  --campo: #121A20;
+  --cabecera-tabla: #1E2830;
+  --fila-hover: #1F2A33;
+  --invertido-fondo: #E2E8E5;
+  --invertido-texto: #11181E;
+  --sombra: rgba(0, 0, 0, 0.45);
+  --sombra-fuerte: rgba(0, 0, 0, 0.6);
+  --telon: rgba(0, 0, 0, 0.6);
+  color-scheme: dark;
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-tema="claro"]) {
+    --fondo: #11181E;
+    --superficie: #19222A;
+    --tinta: #E2E8E5;
+    --tinta-suave: #9DAAB2;
+    --linea: #2B3740;
+    --activo: #2E9E6A;
+    --activo-claro: #16382A;
+    --inactivo: #5E6A72;
+    --alerta: #F06B60;
+    --alerta-claro: #3B1F1D;
+    --aviso: #C98A2E;
+    --cable: #5E8FF0;
+    --cable-claro: #1C2A47;
+    --barra-fondo: #0C1216;
+    --barra-texto: #E2E8E5;
+    --barra-suave: #93A1AA;
+    --barra-boton: #D5DDE2;
+    --barra-borde: #2E3B45;
+    --barra-borde-hover: #6E7E89;
+    --primario: #3366D6;
+    --primario-hover: #2A57BC;
+    --libre: #222C35;
+    --campo: #121A20;
+    --cabecera-tabla: #1E2830;
+    --fila-hover: #1F2A33;
+    --invertido-fondo: #E2E8E5;
+    --invertido-texto: #11181E;
+    --sombra: rgba(0, 0, 0, 0.45);
+    --sombra-fuerte: rgba(0, 0, 0, 0.6);
+    --telon: rgba(0, 0, 0, 0.6);
+    color-scheme: dark;
+  }
+}
+* { box-sizing: border-box; }
+html { font-size: 16px; }
+body {
+  margin: 0; background: var(--fondo); color: var(--tinta);
+  font-family: var(--texto); line-height: 1.45;
+  font-variant-numeric: tabular-nums;
+}
+button, input, select { font: inherit; color: inherit; }
+:focus-visible { outline: 3px solid var(--cable); outline-offset: 2px; }
+h1, h2, h3 { font-family: var(--titulo); font-weight: 600; line-height: 1.15; margin: 0; }
+h2 { font-size: 1.75rem; }
+h3 { font-size: 1.25rem; }
+p { margin: 0; }
+.oculto { display: none !important; }
+.suave { color: var(--tinta-suave); }
+.direccion { font-variant-numeric: tabular-nums; letter-spacing: 0.01em; white-space: nowrap; }
+
+/* ---------- Barra superior ---------- */
+.barra {
+  display: flex; align-items: center; gap: 1rem; flex-wrap: wrap;
+  padding: 0.9rem clamp(1rem, 3vw, 2rem); background: var(--barra-fondo); color: var(--barra-texto);
+}
+.barra h1 { font-size: 1.35rem; letter-spacing: 0.01em; }
+.barra .red { color: var(--barra-suave); font-size: 0.95rem; }
+.barra .acciones { margin-left: auto; display: flex; gap: 0.5rem; }
+.boton {
+  border: 1px solid transparent; border-radius: var(--radio); padding: 0.55rem 1rem;
+  cursor: pointer; background: var(--superficie); color: var(--tinta); border-color: var(--linea);
+}
+.boton:hover { border-color: var(--tinta-suave); }
+a.boton { display: inline-block; text-decoration: none; }
+textarea { font: inherit; resize: vertical; min-height: 8rem; }
+.pasos { margin: 0; padding-left: 1.2rem; font-size: 0.95rem; }
+.pasos li { margin: 0.3rem 0; }
+.resultado-val { font-family: var(--titulo); font-size: clamp(1.6rem, 3.5vw, 2.3rem); line-height: 1.15; font-weight: 600; }
+.resultado-val.bueno { color: var(--activo); }
+.resultado-val.regular { color: var(--aviso); }
+.resultado-val.malo { color: var(--alerta); }
+.datos-archivo { display: grid; grid-template-columns: 7rem minmax(0, 1fr); gap: 0.35rem 0.75rem; margin: 0; font-size: 0.92rem; }
+.datos-archivo dt { color: var(--tinta-suave); }
+.datos-archivo dd { margin: 0; overflow-wrap: anywhere; }
+.datos-archivo dd.direccion { white-space: normal; word-break: break-all; }
+.lista-mac { margin: 0.3rem 0 0; padding-left: 1.1rem; font-size: 0.9rem; max-height: 10rem; overflow: auto; }
+table.simple { font-size: 0.92rem; }
+table.simple tbody tr { cursor: default; }
+.boton.principal { background: var(--primario); color: #fff; border-color: var(--primario); font-weight: 600; }
+.boton.principal:hover { background: var(--primario-hover); }
+.boton.peligro { color: var(--alerta); border-color: var(--alerta); background: transparent; }
+.boton.peligro:hover { background: var(--alerta-claro); }
+.boton:disabled { opacity: 0.55; cursor: wait; }
+.barra .boton.discreto { background: transparent; color: var(--barra-boton); border-color: var(--barra-borde); }
+#btnTema { display: inline-flex; align-items: center; gap: 0.45rem; }
+.icono-tema { flex: none; }
+.barra .boton.discreto:hover { border-color: var(--barra-borde-hover); }
+
+/* ---------- Pestañas ---------- */
+nav.pestanas {
+  display: flex; gap: 0.25rem; padding: 0 clamp(1rem, 3vw, 2rem);
+  border-bottom: 1px solid var(--linea); background: var(--superficie); overflow-x: auto;
+}
+nav.pestanas button {
+  background: none; border: 0; padding: 0.8rem 0.9rem; cursor: pointer; color: var(--tinta-suave);
+  border-bottom: 3px solid transparent; white-space: nowrap;
+}
+nav.pestanas button[aria-selected="true"] { color: var(--tinta); border-bottom-color: var(--tinta); font-weight: 600; }
+
+main { padding: clamp(1rem, 3vw, 2rem); max-width: 1320px; margin: 0 auto; }
+section.vista { display: grid; gap: 1.5rem; }
+
+/* ---------- Inicio: mapa de la subred ---------- */
+.inicio { grid-template-columns: minmax(0, 1fr) 22rem; align-items: start; }
+.mapa-caja { background: var(--superficie); border: 1px solid var(--linea); border-radius: var(--radio); padding: 1.25rem; }
+.mapa-cabecera { display: flex; justify-content: space-between; align-items: baseline; gap: 1rem; flex-wrap: wrap; margin-bottom: 1rem; }
+.mapa {
+  --columnas: 16;
+  max-width: calc(var(--columnas) * 44px);
+  display: grid; grid-template-columns: repeat(var(--columnas), minmax(0, 1fr)); gap: 3px;
+}
+.celda {
+  aspect-ratio: 1; border: 0; border-radius: 3px; padding: 0; cursor: default;
+  background: var(--libre); color: transparent; font-size: 0.68rem; line-height: 1;
+  display: grid; place-items: center; transition: background-color 0.3s, transform 0.3s;
+}
+.celda.ocupada { cursor: pointer; color: rgba(255,255,255,0.92); }
+.celda.activo { background: var(--activo); }
+.celda.inactivo { background: var(--inactivo); }
+.celda.router { background: var(--cable); }
+.celda.aviso { background: var(--aviso); }
+.celda.alerta { background: var(--alerta); }
+.celda.propio { box-shadow: inset 0 0 0 2px var(--tinta); }
+.celda.ocupada:hover { transform: scale(1.12); }
+.mapa.denso .celda { font-size: 0; }
+.celda.encendiendo { animation: encender 0.5s ease-out both; }
+@keyframes encender { from { background: var(--libre); transform: scale(0.6); } }
+.leyenda { display: flex; flex-wrap: wrap; gap: 0.4rem 1.1rem; margin-top: 1rem; font-size: 0.88rem; color: var(--tinta-suave); }
+.leyenda .propio-leyenda::before { box-shadow: inset 0 0 0 2px var(--tinta); }
+.leyenda span::before { content: ""; display: inline-block; width: 0.8em; height: 0.8em; border-radius: 2px; margin-right: 0.4em; vertical-align: -0.05em; background: var(--c); }
+
+.resumen { display: grid; gap: 1.25rem; }
+.conteo { font-family: var(--titulo); font-size: clamp(2.2rem, 5vw, 3.2rem); line-height: 1; font-weight: 600; }
+.conteo small { display: block; font-family: var(--texto); font-size: 1rem; font-weight: 400; color: var(--tinta-suave); margin-top: 0.35rem; line-height: 1.4; }
+.bloque { background: var(--superficie); border: 1px solid var(--linea); border-radius: var(--radio); padding: 1rem 1.1rem; }
+.alertas { border-color: var(--alerta); background: var(--alerta-claro); }
+.alertas h3 { color: var(--alerta); margin-bottom: 0.5rem; }
+.alertas li { margin: 0.35rem 0; }
+.progreso { border-color: var(--cable); }
+.barra-progreso { height: 4px; background: var(--cable-claro); border-radius: 2px; overflow: hidden; margin: 0.75rem 0; }
+.barra-progreso::after { content: ""; display: block; height: 100%; width: 35%; background: var(--cable); animation: avanzar 1.3s ease-in-out infinite; }
+@keyframes avanzar { from { transform: translateX(-100%); } to { transform: translateX(300%); } }
+.bitacora { margin: 0; padding: 0; list-style: none; font-size: 0.88rem; color: var(--tinta-suave); max-height: 12rem; overflow: auto; }
+.bitacora li:last-child { color: var(--tinta); }
+.vacio { padding: 2.5rem 1rem; text-align: center; display: grid; gap: 1rem; justify-items: center; }
+
+/* ---------- Tablas y listas ---------- */
+.herramientas { display: flex; gap: 0.75rem; flex-wrap: wrap; align-items: center; }
+.herramientas input[type="search"] { flex: 1 1 16rem; }
+input[type="text"], input[type="search"], input[type="number"], input[type="password"], select, textarea {
+  padding: 0.55rem 0.7rem; border: 1px solid var(--linea); border-radius: var(--radio); background: var(--campo); min-width: 0;
+}
+.segmentos { display: inline-flex; border: 1px solid var(--linea); border-radius: var(--radio); overflow: hidden; background: var(--campo); }
+.segmentos button { border: 0; background: none; padding: 0.5rem 0.8rem; cursor: pointer; }
+.segmentos button + button { border-left: 1px solid var(--linea); }
+.segmentos button[aria-pressed="true"] { background: var(--invertido-fondo); color: var(--invertido-texto); }
+.tabla-caja { overflow-x: auto; background: var(--superficie); border: 1px solid var(--linea); border-radius: var(--radio); }
+table { width: 100%; border-collapse: collapse; font-size: 0.95rem; }
+th, td { text-align: left; padding: 0.65rem 0.8rem; border-bottom: 1px solid var(--linea); vertical-align: top; }
+th { font-weight: 600; color: var(--tinta-suave); font-size: 0.85rem; background: var(--cabecera-tabla); position: sticky; top: 0; }
+tbody tr { cursor: pointer; }
+tbody tr:hover { background: var(--fila-hover); }
+tr:last-child td { border-bottom: 0; }
+.punto { display: inline-block; width: 0.65rem; height: 0.65rem; border-radius: 50%; background: var(--inactivo); }
+.punto.activo { background: var(--activo); }
+.secundario { display: block; font-size: 0.82rem; color: var(--tinta-suave); }
+.marca { font-size: 0.78rem; padding: 0.05rem 0.4rem; border-radius: 3px; background: var(--cable-claro); color: var(--cable); margin-left: 0.3rem; white-space: nowrap; }
+.marca.roja { background: var(--alerta-claro); color: var(--alerta); }
+
+.eventos { list-style: none; margin: 0; padding: 0; background: var(--superficie); border: 1px solid var(--linea); border-radius: var(--radio); }
+.eventos li { display: grid; grid-template-columns: 12rem 11rem minmax(0, 1fr); gap: 0.75rem; padding: 0.6rem 0.9rem; border-bottom: 1px solid var(--linea); }
+.eventos li:last-child { border-bottom: 0; }
+.eventos li > span:first-child { white-space: nowrap; }
+.eventos .tipo::before { content: ""; display: inline-block; width: 0.55rem; height: 0.55rem; border-radius: 50%; margin-right: 0.45rem; background: var(--c, var(--inactivo)); }
+
+/* ---------- Formularios ---------- */
+.columnas { display: grid; grid-template-columns: repeat(auto-fit, minmax(20rem, 1fr)); gap: 1.25rem; align-items: start; }
+.grupo { display: grid; gap: 0.9rem; }
+.grupo h3 { margin-bottom: 0.2rem; }
+label.campo { display: grid; gap: 0.3rem; font-size: 0.95rem; }
+label.casilla { display: flex; gap: 0.6rem; align-items: flex-start; font-size: 0.95rem; }
+label.casilla input { margin-top: 0.25rem; width: 1.05rem; height: 1.05rem; accent-color: var(--cable); }
+.ayuda { font-size: 0.85rem; color: var(--tinta-suave); }
+.fila { display: flex; gap: 0.6rem; flex-wrap: wrap; align-items: end; }
+.fila input[type="number"] { width: 6.5rem; }
+.candidatos { margin: 0.4rem 0 0; padding-left: 1.1rem; font-size: 0.9rem; max-height: 12rem; overflow: auto; }
+
+/* ---------- Panel de detalle y diálogos ---------- */
+.panel {
+  position: fixed; inset: 0 0 0 auto; width: min(26rem, 100vw); background: var(--superficie);
+  border-left: 1px solid var(--linea); box-shadow: -12px 0 32px var(--sombra);
+  padding: 1.25rem; overflow-y: auto; display: grid; gap: 1rem; align-content: start; z-index: 20;
+  transform: translateX(105%); transition: transform 0.25s ease-out; visibility: hidden;
+}
+.panel.abierto { transform: none; visibility: visible; }
+.panel dl { display: grid; grid-template-columns: 9.5rem minmax(0, 1fr); gap: 0.45rem 0.75rem; margin: 0; font-size: 0.93rem; }
+.panel dt { color: var(--tinta-suave); }
+.panel dd { margin: 0; overflow-wrap: anywhere; }
+.panel .cerrar { justify-self: end; }
+dialog { border: 0; border-radius: var(--radio); padding: 1.5rem; max-width: min(36rem, 92vw); color: var(--tinta); background: var(--superficie); box-shadow: 0 20px 60px var(--sombra-fuerte); }
+dialog::backdrop { background: var(--telon); }
+dialog .pie { display: flex; gap: 0.6rem; justify-content: flex-end; margin-top: 1.25rem; flex-wrap: wrap; }
+dialog ul { padding-left: 1.2rem; }
+dialog li { margin: 0.4rem 0; }
+.mensaje {
+  position: fixed; bottom: 1.25rem; left: 50%; transform: translateX(-50%); z-index: 30;
+  background: var(--invertido-fondo); color: var(--invertido-texto); padding: 0.7rem 1.1rem; border-radius: var(--radio); max-width: min(40rem, 92vw);
+}
+.mensaje.error { background: var(--alerta); color: #fff; }
+body.bloqueada main, body.bloqueada nav.pestanas, body.bloqueada .barra .acciones,
+body.bloqueada .barra .red { visibility: hidden; }
+.aviso-seguridad { background: var(--alerta-claro); color: var(--alerta); border-bottom: 1px solid var(--alerta); padding: 0.6rem clamp(1rem, 3vw, 2rem); font-size: 0.92rem; }
+
+@media (max-width: 900px) {
+  .inicio { grid-template-columns: 1fr; }
+  .resumen { order: -1; }
+  .eventos li { grid-template-columns: 1fr; gap: 0.15rem; }
+}
+@media (max-width: 700px) {
+  /* En celular cada equipo es una tarjeta en vez de una fila de 6 columnas */
+  table.tarjetas-movil thead { display: none; }
+  table.tarjetas-movil tbody tr { display: grid; grid-template-columns: 1.3rem minmax(0, 1fr); padding: 0.7rem 0.9rem; border-bottom: 1px solid var(--linea); }
+  table.tarjetas-movil td { border: 0; padding: 0.1rem 0; grid-column: 2; }
+  table.tarjetas-movil td.celda-punto { grid-column: 1; grid-row: 1; padding-top: 0.35rem; }
+  table.tarjetas-movil td.celda-nombre { grid-row: 1; font-weight: 600; }
+  table.tarjetas-movil td[data-etiqueta] { display: flex; gap: 0.5rem; font-size: 0.9rem; }
+  table.tarjetas-movil td[data-etiqueta]::before { content: attr(data-etiqueta); color: var(--tinta-suave); min-width: 3rem; }
+  table.tarjetas-movil td[data-etiqueta] .secundario { display: inline; margin-left: 0.3rem; }
+  table.tarjetas-movil td[data-etiqueta]:empty { display: none; }
+  .segmentos { width: 100%; }
+  .segmentos button { flex: 1; padding: 0.5rem 0.3rem; white-space: nowrap; font-size: 0.9rem; }
+}
+@media (max-width: 600px) {
+  .celda { font-size: 0; }
+  .barra .acciones { margin-left: 0; width: 100%; }
+  .barra .acciones .boton { flex: 1; }
+  .barra .acciones #btnTema { flex: 0 0 auto; }
+  .texto-tema { display: none; }
+}
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after { animation: none !important; transition: none !important; }
+}
+</style>
+</head>
+<body>
+<header class="barra">
+  <h1>Detector de red</h1>
+  <p class="red" id="lineaRed">Buscando la red...</p>
+  <div class="acciones">
+    <button class="boton discreto" id="btnTema" type="button" title="Cambiar entre automático, oscuro y claro"></button>
+    <button class="boton principal" id="btnEscanear" type="button">Escanear red</button>
+    <button class="boton discreto oculto" id="btnSalirSesion" type="button">Cerrar sesión</button>
+    <button class="boton discreto" id="btnCerrar" type="button">Cerrar programa</button>
+  </div>
+</header>
+
+<nav class="pestanas" role="tablist" aria-label="Secciones">
+  <button role="tab" data-vista="inicio" aria-selected="true">Inicio</button>
+  <button role="tab" data-vista="dispositivos" aria-selected="false">Dispositivos</button>
+  <button role="tab" data-vista="historial" aria-selected="false">Historial</button>
+  <button role="tab" data-vista="validacion" aria-selected="false">Validación</button>
+  <button role="tab" data-vista="mantenimiento" aria-selected="false">Mantenimiento</button>
+  <button role="tab" data-vista="ejecutable" aria-selected="false">Ejecutable</button>
+  <button role="tab" data-vista="configuracion" aria-selected="false">Configuración</button>
+</nav>
+
+<div class="aviso-seguridad oculto" id="avisoRemoto" role="alert">
+  El acceso desde otros equipos está activo sin HTTPS: en una red compartida, alguien podría ver la contraseña. Configure HTTPS o úselo solo en redes de confianza.
+</div>
+
+<main>
+  <!-- Inicio -->
+  <section class="vista inicio" id="vista-inicio">
+    <div class="mapa-caja">
+      <div class="mapa-cabecera">
+        <h2 id="tituloMapa">Mapa de la red</h2>
+        <p class="suave" id="subtituloMapa">Cada cuadro es una dirección IP posible.</p>
+      </div>
+      <div class="mapa" id="mapa" aria-label="Mapa de direcciones IP de la red"></div>
+      <div class="leyenda" aria-hidden="true">
+        <span style="--c: var(--activo)">Conectado</span>
+        <span style="--c: var(--inactivo)">Registrado, no está ahora</span>
+        <span style="--c: var(--cable)">Router</span>
+        <span style="--c: var(--aviso)">Responde por varias IP</span>
+        <span style="--c: var(--libre)">Libre</span>
+        <span class="propio-leyenda" style="--c: transparent">Este PC</span>
+      </div>
+    </div>
+    <div class="resumen">
+      <div class="conteo" id="conteo">0 equipos conectados<small>Escanee la red para empezar.</small></div>
+      <div class="bloque progreso oculto" id="cajaProgreso" aria-live="polite">
+        <h3>Escaneando la red</h3>
+        <div class="barra-progreso"></div>
+        <ul class="bitacora" id="bitacora"></ul>
+      </div>
+      <div class="bloque alertas oculto" id="cajaAlertas">
+        <h3>Alertas de seguridad</h3>
+        <ul id="listaAlertas"></ul>
+        <p class="ayuda">Un cambio en la MAC del router puede ser un router nuevo o alguien suplantándolo. Si no cambió el router, revise la red.</p>
+      </div>
+      <div class="bloque" id="cajaUltimo">
+        <h3>Último escaneo</h3>
+        <p id="textoUltimo" class="suave">Todavía no se ha escaneado esta red.</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- Dispositivos -->
+  <section class="vista oculto" id="vista-dispositivos">
+    <div class="herramientas">
+      <input type="search" id="buscar" placeholder="Buscar por nombre, IP, MAC o fabricante" aria-label="Buscar dispositivo">
+      <div class="segmentos" role="group" aria-label="Filtrar">
+        <button type="button" data-filtro="todos" aria-pressed="true">Todos</button>
+        <button type="button" data-filtro="activo" aria-pressed="false">Conectados</button>
+        <button type="button" data-filtro="inactivo" aria-pressed="false">Sin ver</button>
+        <button type="button" data-filtro="protegido" aria-pressed="false">Protegidos</button>
+      </div>
+      <button class="boton" type="button" id="btnAgregar">Agregar a mano</button>
+    </div>
+    <div class="tabla-caja">
+      <table class="tarjetas-movil">
+        <thead><tr><th></th><th>Nombre</th><th>IP</th><th>MAC</th><th>Tipo o fabricante</th><th>Visto por última vez</th></tr></thead>
+        <tbody id="cuerpoTabla"></tbody>
+      </table>
+    </div>
+    <p class="suave" id="pieTabla"></p>
+  </section>
+
+  <!-- Historial -->
+  <section class="vista oculto" id="vista-historial">
+    <div class="herramientas">
+      <label class="campo">Mostrar
+        <select id="filtroEvento">
+          <option value="">Todos los eventos</option>
+          <option value="nuevo">Equipos nuevos</option>
+          <option value="desconectado">Desconexiones</option>
+          <option value="reconectado">Reconexiones</option>
+          <option value="cambio">Cambios de IP o MAC</option>
+          <option value="alerta">Alertas</option>
+        </select>
+      </label>
+      <p class="suave" id="totalHistorial"></p>
+    </div>
+    <ul class="eventos" id="listaEventos"></ul>
+  </section>
+
+  <!-- Validación -->
+  <section class="vista oculto" id="vista-validacion">
+    <div class="columnas">
+      <div class="bloque grupo">
+        <h3>Comparar con la lista del router</h3>
+        <p class="ayuda">Mide qué porcentaje de los equipos que ve el router encontró el programa. Es la prueba de precisión del escaneo.</p>
+        <ol class="pasos">
+          <li>Escanee la red con el botón Escanear red.</li>
+          <li>Abra la página de administración del router (suele ser la IP del router en el navegador) y busque la lista de clientes DHCP o dispositivos conectados.</li>
+          <li>Copie toda esa lista y péguela abajo. El programa extrae las direcciones MAC y las compara una por una con el último escaneo.</li>
+        </ol>
+        <p class="ayuda" id="valUltimo"></p>
+        <label class="campo">Lista de clientes del router
+          <textarea id="valTexto" rows="8" placeholder="Pegue aquí el texto copiado de la página del router"></textarea>
+        </label>
+        <label class="campo">Si el router no muestra direcciones MAC, escriba cuántos equipos reporta
+          <input type="number" id="valCantidad" min="1">
+        </label>
+        <label class="campo">Nota (opcional)
+          <input type="text" id="valNota" maxlength="200" placeholder="Ej.: casa, router económico, de noche">
+        </label>
+        <div><button class="boton principal" type="button" id="btnValidar">Comparar con el último escaneo</button></div>
+      </div>
+      <div class="grupo">
+        <div class="bloque grupo oculto" id="valResultado" aria-live="polite"></div>
+        <div class="bloque grupo">
+          <h3>Promedio por perfil</h3>
+          <div class="tabla-caja">
+            <table class="simple">
+              <thead><tr><th>Perfil</th><th>Validaciones</th><th>Promedio</th><th>Mínimo</th><th>Máximo</th></tr></thead>
+              <tbody id="tablaPerfiles"></tbody>
+            </table>
+          </div>
+          <h3>Validaciones anteriores</h3>
+          <ul class="eventos" id="listaValidaciones"></ul>
+          <p class="ayuda">Los archivos CSV se abren directamente en Excel. Las estadísticas de escaneo sirven para ajustar los perfiles del router con datos reales.</p>
+          <div class="fila">
+            <a class="boton" href="/api/validaciones.csv" download>Descargar validaciones (CSV)</a>
+            <a class="boton" href="/api/estadisticas.csv" download>Descargar estadísticas de escaneo (CSV)</a>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Mantenimiento -->
+  <section class="vista oculto" id="vista-mantenimiento">
+    <p id="estadoMant" class="suave"></p>
+    <div class="columnas">
+      <div class="bloque grupo">
+        <h3>Borrar eventos antiguos</h3>
+        <p class="ayuda">Quita del historial los eventos más viejos que los días indicados. El inventario no cambia.</p>
+        <div class="fila">
+          <label class="campo">Más de (días)<input type="number" id="diasPurgar" min="1"></label>
+          <button class="boton" type="button" id="btnPurgar">Borrar eventos</button>
+        </div>
+      </div>
+      <div class="bloque grupo">
+        <h3>Dar de baja equipos que ya no aparecen</h3>
+        <p class="ayuda">Saca del inventario los equipos sin ver hace más de los días indicados. Los protegidos nunca se dan de baja. Los celulares con MAC privada usan el plazo corto de Configuración.</p>
+        <div class="fila">
+          <label class="campo">Sin ver hace más de (días)<input type="number" id="diasBaja" min="1"></label>
+          <button class="boton" type="button" id="btnVerBaja">Ver candidatos</button>
+        </div>
+        <ul class="candidatos" id="listaCandidatos"></ul>
+        <button class="boton peligro oculto" type="button" id="btnBaja"></button>
+      </div>
+      <div class="bloque grupo">
+        <h3>Borrar datos</h3>
+        <p class="ayuda">Antes de borrar se guarda una copia en la carpeta de respaldos.</p>
+        <label class="casilla"><input type="checkbox" id="chkConservarProtegidos" checked><span>Conservar los dispositivos protegidos</span></label>
+        <div class="fila">
+          <button class="boton peligro" type="button" id="btnBorrarHistorial">Borrar solo el historial</button>
+          <button class="boton peligro" type="button" id="btnBorrarTodo">Borrar historial y dispositivos</button>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Ejecutable -->
+  <section class="vista oculto" id="vista-ejecutable">
+    <div class="columnas">
+      <div class="bloque grupo" id="cajaCongelado">
+        <h3>Este programa ya es el ejecutable</h3>
+        <p class="ayuda">Descargue una copia para instalarla en otro PC. No necesita Python.</p>
+        <dl class="datos-archivo" id="datosActual"></dl>
+        <div><a class="boton principal" href="/api/descargar?tipo=actual" download>Descargar una copia</a></div>
+      </div>
+      <div class="bloque grupo oculto" id="cajaArmar">
+        <h3>Armar el ejecutable</h3>
+        <p class="ayuda" id="textoSistema"></p>
+        <ol class="pasos">
+          <li id="pasoPyinstaller"></li>
+          <li>Arme el ejecutable con el botón de abajo. Tarda uno o dos minutos.</li>
+          <li>Descárguelo y cópielo al PC donde lo quiera usar.</li>
+        </ol>
+        <div class="fila">
+          <button class="boton" type="button" id="btnPyinstaller">Instalar PyInstaller</button>
+          <button class="boton principal" type="button" id="btnArmar">Armar ejecutable</button>
+        </div>
+        <p class="ayuda" id="soloLocalArmar">Armar solo es posible desde el PC donde corre el programa.</p>
+      </div>
+      <div class="grupo">
+        <div class="bloque progreso grupo oculto" id="cajaArmando" aria-live="polite">
+          <h3 id="tituloArmando">Armando</h3>
+          <div class="barra-progreso"></div>
+          <ul class="bitacora" id="bitacoraArmado"></ul>
+        </div>
+        <div class="bloque grupo oculto" id="cajaEjecutable">
+          <h3>Ejecutable listo</h3>
+          <dl class="datos-archivo" id="datosEjecutable"></dl>
+          <p class="ayuda">La huella SHA-256 permite comprobar que el archivo no fue alterado al copiarlo: en Windows, <span class="direccion">certutil -hashfile DetectorRed.exe SHA256</span> debe dar el mismo valor.</p>
+          <div><a class="boton principal" href="/api/descargar?tipo=ejecutable" download id="btnDescargarExe">Descargar ejecutable</a></div>
+        </div>
+        <div class="bloque grupo oculto" id="cajaInstalador">
+          <h3>Instalador con asistente (opcional)</h3>
+          <p class="ayuda" id="textoInstalador"></p>
+          <dl class="datos-archivo" id="datosInstalador"></dl>
+          <div class="fila">
+            <button class="boton" type="button" id="btnInstalador">Armar instalador</button>
+            <a class="boton oculto" href="/api/descargar?tipo=instalador" download id="btnDescargarInstalador">Descargar instalador</a>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Configuración -->
+  <section class="vista oculto" id="vista-configuracion">
+    <form id="formConfig" class="columnas">
+      <div class="bloque grupo">
+        <h3>Escaneo</h3>
+        <label class="campo">Perfil del router
+          <select name="perfil_router">
+            <option value="auto">Automático (recomendado)</option>
+            <option value="baja">Gama baja: router económico o red saturada</option>
+            <option value="media">Gama media: router doméstico</option>
+            <option value="alta">Gama alta: router empresarial o mesh</option>
+          </select>
+        </label>
+        <label class="campo">Red a escanear
+          <input type="text" name="red_manual" placeholder="Vacío: se detecta sola. Ej. 192.168.0.0/22">
+        </label>
+        <label class="casilla"><input type="checkbox" name="descubrimiento_mdns"><span>Escuchar anuncios mDNS<span class="secundario">Impresoras, televisores, celulares Apple y Android.</span></span></label>
+        <label class="casilla"><input type="checkbox" name="descubrimiento_ssdp"><span>Escuchar anuncios SSDP/UPnP<span class="secundario">Routers, Smart TV y consolas.</span></span></label>
+        <label class="casilla"><input type="checkbox" name="netbios"><span>Preguntar nombres NetBIOS<span class="secundario">Windows antiguos y discos de red (NAS).</span></span></label>
+        <label class="casilla"><input type="checkbox" name="resolver_nombres"><span>Buscar nombres en el DNS del router</span></label>
+        <label class="casilla"><input type="checkbox" name="vecinos_ipv6"><span>Revisar vecinos IPv6<span class="secundario">Encuentra equipos que solo hablan IPv6 y confirma celulares que no contestaron el ARP.</span></span></label>
+        <p class="ayuda">En Windows, si ningún equipo responde a mDNS ni SSDP, el firewall puede estar bloqueando las respuestas. Para permitirlas solo en redes privadas, ejecute como administrador <span class="direccion">DetectorRed.exe --configurar-firewall</span>.</p>
+        <label class="campo">Escaneos sin ver un equipo antes de marcarlo desconectado
+          <input type="number" name="fallos_para_inactivo" min="1" max="10">
+        </label>
+      </div>
+      <div class="bloque grupo">
+        <h3>Historial</h3>
+        <label class="casilla"><input type="checkbox" name="limpieza_automatica"><span>Limpiar automáticamente después de cada escaneo</span></label>
+        <label class="campo">Conservar eventos (días)<input type="number" name="retencion_historial_dias" min="1"></label>
+        <label class="campo">Máximo de eventos guardados<input type="number" name="max_eventos_historial" min="100"></label>
+        <label class="campo">Días sin ver para dar de baja<input type="number" name="dias_para_baja" min="1"></label>
+        <label class="campo">Días para celulares con MAC privada<input type="number" name="dias_para_baja_mac_aleatoria" min="1"></label>
+        <label class="casilla"><input type="checkbox" name="baja_automatica"><span>Dar de baja automáticamente, sin preguntar<span class="secundario">Recomendado solo en empresas con muchos equipos.</span></span></label>
+        <label class="casilla"><input type="checkbox" name="archivar_bajas"><span>Guardar una copia de lo dado de baja</span></label>
+      </div>
+      <div class="bloque grupo">
+        <h3>Fabricantes</h3>
+        <p id="estadoFabricantes" class="ayuda"></p>
+        <button class="boton" type="button" id="btnFabricantes">Descargar lista de fabricantes</button>
+        <h3>Contraseña y acceso</h3>
+        <div id="cajaRemota" class="grupo">
+          <label class="campo">Nueva contraseña<input type="password" name="nueva_clave" autocomplete="new-password" maxlength="128"></label>
+          <p class="ayuda">Mínimo 10 caracteres, que no sea solo números ni una contraseña común. Una frase de varias palabras es fácil de recordar y difícil de adivinar. Cambiarla cierra las demás sesiones abiertas.</p>
+          <label class="casilla"><input type="checkbox" name="web_bloqueo_local"><span>Pedir contraseña también en este PC<span class="secundario">Para PC compartidos: nadie más que use este equipo puede ver ni borrar el inventario. Si olvida la contraseña, ejecute el programa con --restablecer-clave.</span></span></label>
+          <label class="casilla"><input type="checkbox" name="web_acceso_red"><span>Permitir acceso desde otros equipos<span class="secundario">Abre esta página desde el celular u otro PC de la misma red, siempre con contraseña. Requiere reiniciar el programa.</span></span></label>
+        </div>
+        <p id="sinRemota" class="ayuda oculto">Esta opción solo se puede cambiar desde el PC donde corre el programa.</p>
+        <h3>Datos</h3>
+        <p class="ayuda">Se guardan en <span id="carpetaDatos" class="direccion"></span></p>
+      </div>
+      <div><button class="boton principal" type="submit">Guardar cambios</button></div>
+    </form>
+  </section>
+</main>
+
+<!-- Panel de detalle de un dispositivo -->
+<aside class="panel" id="panel" aria-label="Detalle del dispositivo">
+  <button class="boton cerrar" type="button" id="btnCerrarPanel">Cerrar</button>
+  <h2 id="panelNombre"></h2>
+  <dl id="panelDatos"></dl>
+  <form id="formRenombrar" class="fila">
+    <label class="campo" style="flex:1">Nombre<input type="text" id="nuevoNombre" maxlength="60"></label>
+    <button class="boton" type="submit">Guardar nombre</button>
+  </form>
+  <form id="formTipo" class="fila">
+    <label class="campo" style="flex:1">Tipo de equipo<input type="text" id="nuevoTipo" list="tiposConocidos" maxlength="40" placeholder="Vacío: detectar automáticamente"></label>
+    <button class="boton" type="submit">Guardar tipo</button>
+  </form>
+  <datalist id="tiposConocidos">
+    <option value="Computador"><option value="Portátil"><option value="Celular"><option value="Tablet">
+    <option value="Impresora"><option value="TV / Chromecast"><option value="Router"><option value="Repetidor / punto de acceso">
+    <option value="Cámara"><option value="Domótica"><option value="Parlante"><option value="Consola">
+    <option value="PC / NAS"><option value="Servidor"><option value="Teléfono IP">
+  </datalist>
+  <label class="casilla"><input type="checkbox" id="chkProtegido"><span>Proteger<span class="secundario">Nunca se dará de baja automáticamente. Útil para servidores e impresoras.</span></span></label>
+  <button class="boton peligro" type="button" id="btnBorrarHistDisp">Borrar el historial de este equipo</button>
+  <button class="boton peligro" type="button" id="btnEliminarDisp">Eliminar este dispositivo</button>
+</aside>
+
+<!-- Diálogos -->
+<dialog id="dlgAviso">
+  <h2>Antes de empezar</h2>
+  <p style="margin-top:1rem">Este programa registra la IP, la MAC y el nombre de los equipos conectados a la red.</p>
+  <ul>
+    <li>Úselo solo en redes que usted administra o con autorización de quien las administra.</li>
+    <li>En una empresa o institución, una MAC o un nombre como "iPhone-de-Ana" puede asociarse a una persona: es un dato personal según la Ley 1581 de 2012 (Colombia). Informe a los usuarios y obtenga la autorización que corresponda. En uso exclusivamente personal o doméstico esa ley no aplica.</li>
+    <li>Los datos se guardan solo en este equipo. El programa no envía nada a internet, salvo si usted pide descargar la lista de fabricantes.</li>
+  </ul>
+  <div class="pie">
+    <button class="boton" type="button" id="btnNoAcepto">No acepto, cerrar</button>
+    <button class="boton principal" type="button" id="btnAcepto">Entiendo y acepto</button>
+  </div>
+</dialog>
+
+<dialog id="dlgConfirmar">
+  <h2 id="confTitulo"></h2>
+  <p id="confTexto" style="margin-top:0.75rem"></p>
+  <label class="campo oculto" id="confCampo" style="margin-top:1rem">Escriba BORRAR para confirmar<input type="text" id="confEntrada" autocomplete="off"></label>
+  <div class="pie">
+    <button class="boton" type="button" value="no" id="confNo">Cancelar</button>
+    <button class="boton peligro" type="button" value="si" id="confSi"></button>
+  </div>
+</dialog>
+
+<dialog id="dlgAgregar">
+  <h2>Agregar un equipo a mano</h2>
+  <form id="formAgregar" class="grupo" style="margin-top:1rem">
+    <label class="campo">Nombre<input type="text" name="nombre" required maxlength="60"></label>
+    <label class="campo">IP<input type="text" name="ip" required placeholder="192.168.1.20"></label>
+    <label class="campo">MAC (opcional)<input type="text" name="mac" placeholder="00:1A:2B:3C:4D:5E"></label>
+    <div class="pie">
+      <button class="boton" type="button" id="btnCancelarAgregar">Cancelar</button>
+      <button class="boton principal" type="submit">Agregar equipo</button>
+    </div>
+  </form>
+</dialog>
+
+<dialog id="dlgLogin">
+  <h2>Iniciar sesión</h2>
+  <p class="suave" style="margin-top:0.5rem">El Detector está protegido con contraseña.</p>
+  <form id="formLogin" class="grupo" style="margin-top:1rem">
+    <label class="campo">Contraseña<input type="password" id="clave" required autocomplete="current-password"></label>
+    <div class="pie"><button class="boton principal" type="submit">Entrar</button></div>
+  </form>
+</dialog>
+
+<div class="mensaje oculto" id="mensaje" role="status" aria-live="polite"></div>
+
+<script>
+"use strict";
+const TOKEN = document.querySelector('meta[name="token"]').content;
+const $ = (s) => document.querySelector(s);
+const $$ = (s) => Array.from(document.querySelectorAll(s));
+
+// Crea elementos SIEMPRE con textContent: los nombres vienen de la red y no son confiables
+function el(etiqueta, atributos = {}, ...hijos) {
+  const nodo = document.createElement(etiqueta);
+  for (const [k, v] of Object.entries(atributos)) {
+    if (k === "clase") nodo.className = v;
+    else if (k === "texto") nodo.textContent = v;
+    else if (k.startsWith("on")) nodo.addEventListener(k.slice(2), v);
+    else nodo.setAttribute(k, v);
+  }
+  for (const h of hijos) if (h != null) nodo.append(h instanceof Node ? h : String(h));
+  return nodo;
+}
+
+class ErrorSesion extends Error {}
+async function api(ruta, datos) {
+  const opciones = datos === undefined ? {} : {
+    method: "POST", body: JSON.stringify(datos),
+    headers: { "Content-Type": "application/json", "X-Token": TOKEN },
+  };
+  const r = await fetch(ruta, opciones);
+  if (r.status === 401) {
+    document.body.classList.add("bloqueada");
+    if (!$("#dlgLogin").open) $("#dlgLogin").showModal();
+    throw new ErrorSesion();
+  }
+  const j = await r.json();
+  if (!r.ok) throw new Error(j.error || "No se pudo completar la acción.");
+  return j;
+}
+
+let temporizadorMensaje;
+function avisar(texto, error = false) {
+  const m = $("#mensaje");
+  m.textContent = texto;
+  m.classList.toggle("error", error);
+  m.classList.remove("oculto");
+  clearTimeout(temporizadorMensaje);
+  temporizadorMensaje = setTimeout(() => m.classList.add("oculto"), error ? 9000 : 4500);
+}
+function fallo(e) { if (!(e instanceof ErrorSesion)) avisar(e.message, true); }
+
+function confirmar(titulo, texto, boton, pedirPalabra = false) {
+  return new Promise((resolver) => {
+    const d = $("#dlgConfirmar");
+    $("#confTitulo").textContent = titulo;
+    $("#confTexto").textContent = texto;
+    $("#confSi").textContent = boton;
+    $("#confCampo").classList.toggle("oculto", !pedirPalabra);
+    $("#confEntrada").value = "";
+    const cerrar = (valor) => { d.close(); $("#confSi").onclick = $("#confNo").onclick = null; resolver(valor); };
+    $("#confNo").onclick = () => cerrar(false);
+    d.oncancel = (e) => { e.preventDefault(); cerrar(false); };
+    $("#confSi").onclick = () => {
+      if (pedirPalabra && $("#confEntrada").value !== "BORRAR") { $("#confEntrada").focus(); return; }
+      cerrar(true);
+    };
+    d.showModal();
+  });
+}
+
+// Utilidades de IP y fechas
+const ipNum = (ip) => ip.split(".").reduce((a, o) => a * 256 + Number(o), 0);
+const numIp = (n) => [24, 16, 8, 0].map((s) => Math.floor(n / 2 ** s) % 256).join(".");
+function hostsDeRed(cidr) {
+  const [base, p] = cidr.split("/");
+  const tam = 2 ** (32 - Number(p));
+  const red = Math.floor(ipNum(base) / tam) * tam;
+  const lista = [];
+  for (let i = 1; i < tam - 1; i++) lista.push(numIp(red + i));
+  return lista;
+}
+function fechaAmigable(texto) {
+  if (!texto) return "-";
+  const f = new Date(texto.replace(" ", "T"));
+  if (isNaN(f)) return texto;
+  const hoy = new Date();
+  const hora = f.toLocaleTimeString("es-CO", { hour: "2-digit", minute: "2-digit" });
+  if (f.toDateString() === hoy.toDateString()) return `hoy ${hora}`;
+  const ayer = new Date(hoy); ayer.setDate(hoy.getDate() - 1);
+  if (f.toDateString() === ayer.toDateString()) return `ayer ${hora}`;
+  return f.toLocaleDateString("es-CO", { day: "numeric", month: "short", year: "numeric" });
+}
+
+// Estado
+let estado = null;
+let dispositivos = [];
+let filtro = "todos";
+
+async function cargarEstado() {
+  estado = await api("/api/estado");
+  const u = estado.ultimo || {};
+  $("#lineaRed").textContent = u.red
+    ? `Red ${u.red}, router ${u.gateway || "no detectado"}, este PC ${u.ip_local || "-"}`
+    : "No se detectó una red activa";
+  if (!estado.aviso_aceptado && estado.es_local) $("#dlgAviso").showModal();
+  $("#avisoRemoto").classList.toggle("oculto", !estado.remoto_sin_cifrar);
+  $("#btnSalirSesion").classList.toggle("oculto", estado.es_local && !estado.bloqueo_local);
+  $("#btnCerrar").classList.toggle("oculto", !estado.es_local);
+  pintarResumen();
+}
+
+async function cargarDispositivos() {
+  dispositivos = await api("/api/dispositivos");
+  pintarMapa();
+  pintarTabla();
+  pintarResumen();
+}
+
+function pintarResumen() {
+  if (!estado) return;
+  const n = estado.activos;
+  const conteo = $("#conteo");
+  conteo.textContent = `${n} ${n === 1 ? "equipo conectado" : "equipos conectados"}`;
+  const detalle = estado.total
+    ? `${estado.inactivos} registrados que no están ahora. ${estado.total} en total en el inventario.`
+    : "Escanee la red para ver qué equipos están conectados.";
+  conteo.append(el("small", { texto: detalle }));
+
+  const u = estado.ultimo || {};
+  $("#textoUltimo").textContent = u.fecha
+    ? `${fechaAmigable(u.fecha)}, perfil ${u.perfil}, ${u.duracion} segundos.`
+    : "Todavía no se ha escaneado esta red.";
+
+  const lista = $("#listaAlertas");
+  lista.replaceChildren(...estado.alertas.slice().reverse().map((a) =>
+    el("li", {}, el("strong", { texto: fechaAmigable(a.fecha) + ": " }), a.detalle || a.evento)));
+  $("#cajaAlertas").classList.toggle("oculto", !estado.alertas.length);
+}
+
+// Mapa de la subred
+function pintarMapa(encender = new Set()) {
+  const mapa = $("#mapa");
+  const u = (estado && estado.ultimo) || {};
+  if (!u.red) {
+    mapa.replaceChildren(el("div", { clase: "vacio", style: "grid-column: 1 / -1" },
+      el("p", { texto: "No se detectó una red. Conéctese a una red Wi-Fi o por cable y recargue la página." })));
+    return;
+  }
+  const hosts = hostsDeRed(u.red);
+  const porIp = new Map();
+  // Si dos registros comparten IP, gana el conectado y visto más recientemente
+  const mejor = (a, b) => !a ? b : (a.estado === "activo") !== (b.estado === "activo")
+    ? (a.estado === "activo" ? a : b) : (a.ultima_vez >= b.ultima_vez ? a : b);
+  for (const d of dispositivos) {
+    for (const ip of [d.ip, ...(d.ips_extra || [])]) porIp.set(ip, mejor(porIp.get(ip), d));
+  }
+  const columnas = hosts.length <= 256 ? 16 : 32;
+  mapa.style.setProperty("--columnas", columnas);
+  mapa.classList.toggle("denso", hosts.length > 256);
+  $("#tituloMapa").textContent = `Mapa de la red ${u.red}`;
+  $("#subtituloMapa").textContent = `${hosts.length} direcciones posibles. Toque un cuadro de color para ver el equipo.`;
+
+  let retraso = 0;
+  const celdas = hosts.map((ip) => {
+    const d = porIp.get(ip);
+    const ultimo = ip.split(".").pop();
+    if (!d) return el("div", { clase: "celda", title: `${ip} libre`, "aria-hidden": "true" });
+    const clases = ["celda", "ocupada", d.estado === "activo" ? "activo" : "inactivo"];
+    if (d.es_gateway) clases.push("router");
+    if ((d.ips_extra || []).length) clases.push("aviso");
+    if (ip === u.ip_local) clases.push("propio");
+    const b = el("button", {
+      clase: clases.join(" "), type: "button", texto: ultimo,
+      title: `${ip}  ${d.nombre}`, "aria-label": `${ip}, ${d.nombre}, ${d.estado === "activo" ? "conectado" : "sin ver"}`,
+      onclick: () => abrirPanel(d.clave),
+    });
+    if (encender.has(ip)) { b.classList.add("encendiendo"); b.style.animationDelay = `${(retraso++) * 35}ms`; }
+    return b;
+  });
+  mapa.replaceChildren(...celdas);
+}
+
+// Tabla de dispositivos
+function pintarTabla() {
+  const texto = $("#buscar").value.trim().toLowerCase();
+  const filas = dispositivos.filter((d) => {
+    if (filtro === "activo" && d.estado !== "activo") return false;
+    if (filtro === "inactivo" && d.estado === "activo") return false;
+    if (filtro === "protegido" && !d.protegido) return false;
+    if (!texto) return true;
+    return [d.nombre, d.hostname, d.ip, d.mac, d.fabricante, d.tipo, ...(d.ipv6 || [])]
+      .some((v) => v && v.toLowerCase().includes(texto));
+  });
+  const cuerpo = $("#cuerpoTabla");
+  if (!dispositivos.length) {
+    cuerpo.replaceChildren(el("tr", {}, el("td", { colspan: "6" },
+      el("div", { clase: "vacio" }, el("p", { texto: "El inventario está vacío. Escanee la red para llenarlo." })))));
+  } else {
+    cuerpo.replaceChildren(...filas.map((d) => {
+      const nombre = el("td", { clase: "celda-nombre" }, d.nombre);
+      if (d.protegido) nombre.append(el("span", { clase: "marca", texto: "protegido" }));
+      if ((d.ips_extra || []).length) nombre.append(el("span", { clase: "marca roja", texto: `+${d.ips_extra.length} IP` }));
+      if (d.hostname && d.hostname !== d.nombre) nombre.append(el("span", { clase: "secundario", texto: d.hostname }));
+      const mac = el("td", { clase: "direccion", "data-etiqueta": "MAC" }, d.mac || "desconocida");
+      if (d.mac_aleatoria) mac.append(el("span", { clase: "secundario", texto: "MAC privada" }));
+      const fila = el("tr", { tabindex: "0", onclick: () => abrirPanel(d.clave),
+                              onkeydown: (e) => { if (e.key === "Enter") abrirPanel(d.clave); } },
+        el("td", { clase: "celda-punto" }, el("span", { clase: "punto" + (d.estado === "activo" ? " activo" : ""), title: d.estado })),
+        nombre,
+        d.ip ? el("td", { clase: "direccion", "data-etiqueta": "IP", texto: d.ip })
+             : el("td", { "data-etiqueta": "IP" }, el("span", { clase: "marca", texto: "solo IPv6" }),
+                  el("span", { clase: "secundario direccion", texto: (d.ipv6 || [])[0] || "" })),
+        mac,
+        el("td", { "data-etiqueta": "Tipo" }, d.tipo || "", d.tipo && d.fabricante ? el("span", { clase: "secundario", texto: d.fabricante }) : (d.fabricante || "")),
+        el("td", { "data-etiqueta": "Visto", texto: fechaAmigable(d.ultima_vez) }));
+      return fila;
+    }));
+  }
+  $("#pieTabla").textContent = dispositivos.length ? `Mostrando ${filas.length} de ${dispositivos.length} equipos.` : "";
+}
+
+// Panel de detalle
+let claveAbierta = null;
+function abrirPanel(clave) {
+  const d = dispositivos.find((x) => x.clave === clave);
+  if (!d) return;
+  claveAbierta = clave;
+  $("#panelNombre").textContent = d.nombre;
+  const filas = [
+    ["Estado", d.estado === "activo" ? "Conectado" : "Sin ver"],
+    ["IP", d.ip || "sin IPv4"], ["IPv6", (d.ipv6 || []).join(", ")], ["MAC", d.mac || "desconocida"],
+    ["MAC privada", d.mac_aleatoria ? "Sí (dirección aleatoria, típica de celulares)" : "No"],
+    ["Nombre en la red", d.hostname],
+    [d.tipo_manual ? "Tipo (corregido a mano)" : "Tipo probable", d.tipo], ["Fabricante", d.fabricante],
+    ["Servicios", (d.servicios || []).join(", ")],
+    ["IPs adicionales", (d.ips_extra || []).join(", ")],
+    ["MACs anteriores", (d.macs_anteriores || []).join(", ")],
+    ["Visto por primera vez", d.primera_vez], ["Visto por última vez", d.ultima_vez],
+    ["Origen", d.origen === "manual" ? "Agregado a mano" : "Escaneo"],
+  ];
+  $("#panelDatos").replaceChildren(...filas.filter(([, v]) => v).flatMap(([k, v]) => [el("dt", { texto: k }), el("dd", { texto: v })]));
+  $("#nuevoNombre").value = d.nombre;
+  $("#nuevoTipo").value = d.tipo_manual ? (d.tipo || "") : "";
+  $("#nuevoTipo").placeholder = d.tipo && !d.tipo_manual ? `Detectado: ${d.tipo}` : "Vacío: detectar automáticamente";
+  $("#chkProtegido").checked = !!d.protegido;
+  $("#btnBorrarHistDisp").classList.toggle("oculto", !d.mac);
+  $("#panel").classList.add("abierto");
+  $("#btnCerrarPanel").focus();
+}
+function cerrarPanel() { $("#panel").classList.remove("abierto"); claveAbierta = null; }
+
+$("#btnCerrarPanel").addEventListener("click", cerrarPanel);
+document.addEventListener("keydown", (e) => { if (e.key === "Escape" && claveAbierta) cerrarPanel(); });
+$("#formRenombrar").addEventListener("submit", async (e) => {
+  e.preventDefault();
+  try {
+    await api("/api/dispositivo/renombrar", { clave: claveAbierta, nombre: $("#nuevoNombre").value });
+    avisar("Nombre guardado.");
+    const clave = claveAbierta;
+    await cargarDispositivos(); abrirPanel(clave);
+  } catch (err) { fallo(err); }
+});
+$("#formTipo").addEventListener("submit", async (e) => {
+  e.preventDefault();
+  try {
+    const tipo = $("#nuevoTipo").value.trim();
+    await api("/api/dispositivo/tipo", { clave: claveAbierta, tipo });
+    avisar(tipo ? "Tipo guardado. Los próximos escaneos lo respetan." : "El tipo vuelve a detectarse automáticamente.");
+    const clave = claveAbierta;
+    await cargarDispositivos(); abrirPanel(clave);
+  } catch (err) { fallo(err); }
+});
+$("#chkProtegido").addEventListener("change", async (e) => {
+  try {
+    await api("/api/dispositivo/proteger", { clave: claveAbierta, protegido: e.target.checked });
+    avisar(e.target.checked ? "Equipo protegido." : "El equipo ya no está protegido.");
+    await cargarDispositivos();
+  } catch (err) { fallo(err); }
+});
+$("#btnBorrarHistDisp").addEventListener("click", async () => {
+  if (!await confirmar("Borrar el historial de este equipo", "Se eliminan todos sus eventos. El equipo sigue en el inventario.", "Borrar historial")) return;
+  try {
+    const r = await api("/api/dispositivo/borrar-historial", { clave: claveAbierta });
+    avisar(`${r.borrados} eventos borrados.`);
+  } catch (err) { fallo(err); }
+});
+
+$("#btnEliminarDisp").addEventListener("click", async () => {
+  const d = dispositivos.find((x) => x.clave === claveAbierta);
+  if (!await confirmar("Eliminar este dispositivo", `Se eliminan "${d ? d.nombre : ""}" y su historial. Si vuelve a conectarse, aparecerá como equipo nuevo.`, "Eliminar")) return;
+  try {
+    await api("/api/dispositivo/eliminar", { clave: claveAbierta });
+    cerrarPanel(); avisar("Dispositivo eliminado.");
+    await cargarEstado(); await cargarDispositivos();
+  } catch (err) { fallo(err); }
+});
+
+// Escaneo
+async function escanear() {
+  if (!estado.aviso_aceptado) { $("#dlgAviso").showModal(); return; }
+  try {
+    await api("/api/escanear", {});
+    seguirEscaneo();
+  } catch (err) { fallo(err); }
+}
+async function seguirEscaneo() {
+  const activosAntes = new Set(dispositivos.filter((d) => d.estado === "activo").map((d) => d.ip));
+  $("#btnEscanear").disabled = true;
+  $("#btnEscanear").textContent = "Escaneando...";
+  $("#cajaProgreso").classList.remove("oculto");
+  mostrarVista("inicio");
+  for (;;) {
+    let p;
+    try { p = await api("/api/progreso"); } catch (err) { fallo(err); break; }
+    const bitacora = $("#bitacora");
+    bitacora.replaceChildren(...p.lineas.slice(-12).map((t) => el("li", { texto: t })));
+    bitacora.scrollTop = bitacora.scrollHeight;
+    if (!p.en_curso) {
+      const r = p.resultado || { ok: false, error: "El escaneo terminó sin resultado." };
+      if (r.ok) {
+        const s = r.resumen;
+        let texto = `${r.activos} equipos conectados. Nuevos: ${s.nuevos}. Se fueron: ${s.desconectados}.`;
+        if (r.sugerencia) texto += ` La red pierde respuestas: pruebe el perfil "${r.sugerencia}" en Configuración.`;
+        if (r.aviso_firewall) texto += " Ningún equipo respondió a mDNS ni SSDP: puede ser el Firewall de Windows (vea Configuración).";
+        avisar(texto, s.alertas.length > 0);
+      } else avisar(r.error, true);
+      break;
+    }
+    await new Promise((ok) => setTimeout(ok, 800));
+  }
+  $("#btnEscanear").disabled = false;
+  $("#btnEscanear").textContent = "Escanear red";
+  $("#cajaProgreso").classList.add("oculto");
+  await cargarEstado();
+  await cargarDispositivos();
+  const nuevos = new Set(dispositivos.filter((d) => d.estado === "activo" && !activosAntes.has(d.ip)).map((d) => d.ip));
+  pintarMapa(nuevos);
+}
+$("#btnEscanear").addEventListener("click", escanear);
+
+// Historial
+const EVENTOS = {
+  nuevo: ["Equipo nuevo", "var(--activo)"], reconectado: ["Volvió", "var(--activo)"],
+  desconectado: ["Se desconectó", "var(--inactivo)"], cambio_ip: ["Cambió de IP", "var(--cable)"],
+  cambio_mac: ["Cambió de MAC", "var(--cable)"], alerta_router: ["Alerta del router", "var(--alerta)"],
+  alerta_misma_mac: ["Misma MAC en varias IP", "var(--aviso)"], renombrado: ["Renombrado", "var(--tinta-suave)"],
+  agregado_manual: ["Agregado a mano", "var(--tinta-suave)"], baja: ["Dado de baja", "var(--tinta-suave)"],
+};
+async function cargarHistorial() {
+  const h = await api("/api/historial?n=500");
+  const f = $("#filtroEvento").value;
+  const eventos = h.eventos.filter((e) => !f || (e.evento || "").startsWith(f));
+  $("#totalHistorial").textContent = `${h.total} eventos guardados.`;
+  const lista = $("#listaEventos");
+  if (!eventos.length) {
+    lista.replaceChildren(el("li", { style: "display:block" }, el("p", { clase: "suave", texto: "No hay eventos para mostrar." })));
+    return;
+  }
+  lista.replaceChildren(...eventos.map((e) => {
+    const [nombre, color] = EVENTOS[e.evento] || [e.evento, "var(--inactivo)"];
+    return el("li", {},
+      el("span", { clase: "suave", texto: e.fecha }),
+      el("span", { clase: "tipo", style: `--c: ${color}`, texto: nombre }),
+      el("span", {}, `${e.nombre || ""} `, el("span", { clase: "direccion suave", texto: e.ip || "" }),
+         e.detalle ? el("span", { clase: "secundario", texto: e.detalle }) : null));
+  }));
+}
+$("#filtroEvento").addEventListener("change", () => cargarHistorial().catch(fallo));
+
+// Validación
+function pintarResultadoValidacion(v) {
+  const caja = $("#valResultado");
+  const p = v.porcentaje;
+  const clase = p >= 90 ? "bueno" : p >= 70 ? "regular" : "malo";
+  const frase = v.metodo === "mac"
+    ? `Encontró ${v.coinciden} de los ${v.en_router} equipos del router: ${p} %`
+    : `Detectó ${v.detectados} equipos y el router reporta ${v.en_router}: ${p} % aproximado`;
+  const hijos = [el("h3", { texto: "Resultado" }), el("p", { clase: `resultado-val ${clase}`, texto: frase })];
+  if (v.metodo === "conteo") {
+    hijos.push(el("p", { clase: "ayuda", texto: "Comparación por cantidad: no confirma que sean los mismos equipos. Si el router muestra MAC, pegue la lista para una medición exacta." }));
+  }
+  const listaMac = (items) => el("ul", { clase: "lista-mac" },
+    ...items.map((x) => el("li", {}, el("span", { clase: "direccion", texto: x.mac }), x.nombre ? ` ${x.nombre}` : "")));
+  if ((v.faltan || []).length) {
+    hijos.push(el("p", { texto: `El router ve ${v.faltan.length} que el programa no encontró:` }), listaMac(v.faltan),
+      el("p", { clase: "ayuda", texto: "Suelen ser celulares dormidos o equipos detrás de un repetidor. Escanee de nuevo o pruebe el perfil de gama baja." }));
+  }
+  if ((v.extra || []).length) {
+    hijos.push(el("p", { texto: `El programa vio ${v.extra.length} que el router no lista:` }), listaMac(v.extra),
+      el("p", { clase: "ayuda", texto: "No siempre es un error: equipos con IP fija, el propio router o este PC a veces no salen en la lista DHCP." }));
+  }
+  caja.replaceChildren(...hijos);
+  caja.classList.remove("oculto");
+}
+
+async function cargarValidacion() {
+  const v = await api("/api/validaciones");
+  const u = v.ultimo || {};
+  $("#valUltimo").textContent = v.puede_validar
+    ? `Se comparará con el escaneo de ${fechaAmigable(u.fecha)}: ${u.activos} equipos, perfil ${u.perfil}.`
+    : "Todavía no hay un escaneo para comparar. Escanee la red primero.";
+  $("#btnValidar").disabled = !v.puede_validar;
+  const perfiles = Object.entries(v.resumen);
+  $("#tablaPerfiles").replaceChildren(...(perfiles.length ? perfiles.map(([perfil, r]) => el("tr", {},
+      el("td", { texto: perfil }), el("td", { texto: r.validaciones }), el("td", { texto: `${r.promedio} %` }),
+      el("td", { texto: `${r.minimo} %` }), el("td", { texto: `${r.maximo} %` })))
+    : [el("tr", {}, el("td", { colspan: "5", clase: "suave", texto: "Aún no hay validaciones." }))]));
+  $("#listaValidaciones").replaceChildren(...(v.lista.length ? v.lista.slice(0, 15).map((x) => el("li", {},
+      el("span", { clase: "suave", texto: x.fecha }),
+      el("span", { texto: `${x.porcentaje} % (${x.metodo === "mac" ? `${x.coinciden} de ${x.en_router}` : "por conteo"})` }),
+      el("span", {}, `perfil ${x.perfil || "-"} `, x.nota ? el("span", { clase: "secundario", texto: x.nota }) : null)))
+    : [el("li", { style: "display:block" }, el("p", { clase: "suave", texto: "Sin validaciones guardadas." }))]));
+}
+$("#btnValidar").addEventListener("click", async () => {
+  const datos = { texto: $("#valTexto").value, nota: $("#valNota").value };
+  const cantidad = Number($("#valCantidad").value);
+  if (cantidad > 0) datos.cantidad = cantidad;
+  try {
+    const r = await api("/api/validar", datos);
+    pintarResultadoValidacion(r.validacion);
+    avisar(`Validación guardada: ${r.validacion.porcentaje} %.`);
+    cargarValidacion();
+  } catch (err) { fallo(err); }
+});
+
+// Ejecutable
+function datosArchivo(info) {
+  return [["Archivo", info.nombre], ["Tamaño", `${info.tamano_mb} MB`], ["Fecha", info.fecha], ["SHA-256", info.sha256]]
+    .flatMap(([k, v]) => [el("dt", { texto: k }), el("dd", { clase: k === "SHA-256" ? "direccion" : "", texto: v })]);
+}
+
+let siguiendoArmado = false;
+async function cargarEjecutable() {
+  const e = await api("/api/empaquetado");
+  $("#cajaCongelado").classList.toggle("oculto", !e.congelado);
+  $("#cajaArmar").classList.toggle("oculto", e.congelado);
+  if (e.congelado) {
+    $("#datosActual").replaceChildren(...datosArchivo(e.actual));
+    return;
+  }
+  const windows = e.sistema === "Windows";
+  $("#textoSistema").textContent = windows
+    ? "Se arma DetectorRed.exe para Windows. Funciona en cualquier PC con Windows 10 u 11, sin instalar Python."
+    : `Está en ${e.sistema}: se arma un ejecutable para ${e.sistema}. Para el .exe de Windows, arme desde un PC con Windows o use la compilación automática de GitHub.`;
+  $("#pasoPyinstaller").textContent = e.pyinstaller
+    ? "PyInstaller está instalado."
+    : "Instale PyInstaller, la herramienta que convierte el programa en ejecutable (necesita internet).";
+  const armando = e.tarea.en_curso;
+  $("#btnPyinstaller").classList.toggle("oculto", e.pyinstaller || !e.es_local);
+  $("#btnArmar").classList.toggle("oculto", !e.es_local);
+  $("#btnArmar").disabled = !e.pyinstaller || armando;
+  $("#btnPyinstaller").disabled = armando;
+  $("#soloLocalArmar").classList.toggle("oculto", e.es_local);
+
+  $("#cajaEjecutable").classList.toggle("oculto", !e.ejecutable);
+  if (e.ejecutable) {
+    $("#datosEjecutable").replaceChildren(...datosArchivo(e.ejecutable));
+    $("#btnDescargarExe").textContent = `Descargar ${e.ejecutable.nombre}`;
+  }
+  $("#cajaInstalador").classList.toggle("oculto", !windows);
+  $("#textoInstalador").textContent = e.inno
+    ? "Crea un instalador con asistente, acceso en el menú Inicio y desinstalador."
+    : "Para crear un instalador con asistente, instale Inno Setup (gratuito) y vuelva a esta pestaña.";
+  $("#btnInstalador").classList.toggle("oculto", !e.inno || !e.es_local);
+  $("#btnInstalador").disabled = !e.ejecutable || armando;
+  $("#datosInstalador").replaceChildren(...(e.instalador ? datosArchivo(e.instalador) : []));
+  $("#btnDescargarInstalador").classList.toggle("oculto", !e.instalador);
+  if (armando && !siguiendoArmado) seguirArmado();
+}
+
+async function seguirArmado() {
+  siguiendoArmado = true;
+  $("#cajaArmando").classList.remove("oculto");
+  for (;;) {
+    let e;
+    try { e = await api("/api/empaquetado"); } catch (err) { fallo(err); break; }
+    const t = e.tarea;
+    $("#tituloArmando").textContent = { pyinstaller: "Instalando PyInstaller", ejecutable: "Armando el ejecutable", instalador: "Armando el instalador" }[t.accion] || "Armando";
+    const bitacora = $("#bitacoraArmado");
+    bitacora.replaceChildren(...t.lineas.slice(-12).map((l) => el("li", { texto: l })));
+    bitacora.scrollTop = bitacora.scrollHeight;
+    if (!t.en_curso) {
+      const r = t.resultado || { ok: false, error: "Terminó sin resultado." };
+      avisar(r.ok ? { pyinstaller: "PyInstaller instalado.", ejecutable: "Ejecutable listo para descargar.", instalador: "Instalador listo para descargar." }[t.accion] : r.error, !r.ok);
+      break;
+    }
+    await new Promise((ok) => setTimeout(ok, 1000));
+  }
+  $("#cajaArmando").classList.add("oculto");
+  siguiendoArmado = false;
+  cargarEjecutable().catch(fallo);
+}
+
+for (const [boton, ruta] of [["#btnPyinstaller", "pyinstaller"], ["#btnArmar", "construir"], ["#btnInstalador", "instalador"]]) {
+  $(boton).addEventListener("click", async () => {
+    try { await api(`/api/empaquetado/${ruta}`, {}); seguirArmado(); cargarEjecutable().catch(fallo); }
+    catch (err) { fallo(err); }
+  });
+}
+
+// Mantenimiento
+let cfg = null;
+async function cargarMantenimiento() {
+  const m = await api("/api/mantenimiento");
+  if (!cfg) cfg = await api("/api/config");
+  const n = (cantidad, singular, plural) => `${cantidad} ${cantidad === 1 ? singular : plural}`;
+  $("#estadoMant").textContent = (m.eventos
+      ? `El historial tiene ${n(m.eventos, "evento", "eventos")} (${m.tamano_kb} KB), del ${m.mas_antiguo} al ${m.mas_reciente}; `
+        + `${m.eventos_vencidos} superan el plazo de ${cfg.retencion_historial_dias} días. `
+      : "El historial está vacío. ")
+    + `Hay ${n(m.dispositivos, "equipo", "equipos")} en el inventario: ${n(m.protegidos, "protegido", "protegidos")} y `
+    + `${n(m.candidatos_baja, "candidato", "candidatos")} a dar de baja.`;
+  if (!$("#diasPurgar").value) $("#diasPurgar").value = cfg.retencion_historial_dias;
+  if (!$("#diasBaja").value) $("#diasBaja").value = cfg.dias_para_baja;
+}
+$("#btnPurgar").addEventListener("click", async () => {
+  const dias = Number($("#diasPurgar").value);
+  if (!(dias >= 1)) return avisar("Escriba una cantidad de días.", true);
+  if (!await confirmar("Borrar eventos antiguos", `Se borrarán los eventos con más de ${dias} días.`, "Borrar eventos")) return;
+  try { const r = await api("/api/mantenimiento/purgar", { dias }); avisar(`${r.borrados} eventos borrados.`); cargarMantenimiento(); }
+  catch (err) { fallo(err); }
+});
+$("#btnVerBaja").addEventListener("click", async () => {
+  const dias = Number($("#diasBaja").value);
+  try {
+    if (!(dias >= 1)) return avisar("Escriba una cantidad de días.", true);
+    const m = await api(`/api/mantenimiento?dias=${dias}`);
+    const lista = $("#listaCandidatos");
+    lista.replaceChildren(...m.lista_candidatos.map((d) =>
+      el("li", {}, `${d.nombre} `, el("span", { clase: "direccion suave", texto: `${d.ip}, visto ${fechaAmigable(d.ultima_vez)}` }))));
+    const b = $("#btnBaja");
+    b.textContent = `Dar de baja ${m.lista_candidatos.length} ${m.lista_candidatos.length === 1 ? "equipo" : "equipos"}`;
+    b.classList.toggle("oculto", !m.lista_candidatos.length);
+    if (!m.lista_candidatos.length) lista.replaceChildren(el("li", { style: "list-style:none", texto: "Ningún equipo cumple ese plazo." }));
+  } catch (err) { fallo(err); }
+});
+$("#btnBaja").addEventListener("click", async () => {
+  if (!await confirmar("Dar de baja equipos", "Saldrán del inventario junto con sus eventos. Si la copia de bajas está activada en Configuración, quedan guardados en bajas.json.", "Dar de baja")) return;
+  try {
+    const r = await api("/api/mantenimiento/baja", { dias: Number($("#diasBaja").value) });
+    avisar(`${r.bajas} equipos dados de baja.`);
+    $("#listaCandidatos").replaceChildren(); $("#btnBaja").classList.add("oculto");
+    await cargarDispositivos(); cargarMantenimiento();
+  } catch (err) { fallo(err); }
+});
+async function borrarDatos(incluirDispositivos) {
+  const conservar = $("#chkConservarProtegidos").checked;
+  const texto = incluirDispositivos
+    ? `Se borran el historial y todos los dispositivos guardados${conservar ? ", excepto los protegidos" : ""}.`
+    : "Se borra el historial. Los dispositivos guardados se conservan.";
+  if (!await confirmar(incluirDispositivos ? "Borrar historial y dispositivos" : "Borrar solo el historial",
+                       texto, "Borrar", true)) return;
+  try {
+    const r = await api("/api/mantenimiento/borrar-todo",
+      { confirmacion: "BORRAR", incluir_dispositivos: incluirDispositivos, conservar_protegidos: conservar });
+    avisar(incluirDispositivos ? `Historial y ${r.dispositivos_borrados} dispositivos borrados.` : "Historial borrado.");
+    await cargarEstado(); await cargarDispositivos(); cargarMantenimiento();
+  } catch (err) { fallo(err); }
+}
+$("#btnBorrarHistorial").addEventListener("click", () => borrarDatos(false));
+$("#btnBorrarTodo").addEventListener("click", () => borrarDatos(true));
+
+// Configuración
+async function cargarConfiguracion() {
+  cfg = await api("/api/config");
+  const f = $("#formConfig");
+  for (const campo of f.elements) {
+    if (!campo.name || !(campo.name in cfg)) continue;
+    if (campo.type === "checkbox") campo.checked = !!cfg[campo.name];
+    else campo.value = cfg[campo.name] ?? "";
+  }
+  f.elements.nueva_clave.value = "";
+  f.elements.nueva_clave.placeholder = cfg.tiene_clave ? "Ya hay una contraseña. Escriba otra para cambiarla." : "";
+  $("#estadoFabricantes").textContent = estado.fabricantes
+    ? "La lista oficial de fabricantes (IEEE) está descargada."
+    : "Descargue la lista oficial de IEEE para ver la marca de cada equipo. Son unos 3 MB.";
+  $("#carpetaDatos").textContent = estado.carpeta;
+  $("#cajaRemota").classList.toggle("oculto", !estado.es_local);
+  $("#sinRemota").classList.toggle("oculto", estado.es_local);
+}
+$("#formConfig").addEventListener("submit", async (e) => {
+  e.preventDefault();
+  const datos = {};
+  for (const campo of e.target.elements) {
+    if (!campo.name || campo.closest(".oculto")) continue;
+    if (campo.type === "checkbox") datos[campo.name] = campo.checked;
+    else if (campo.type === "number") datos[campo.name] = Number(campo.value);
+    else if (campo.value !== "" || campo.name === "red_manual") datos[campo.name] = campo.value.trim();
+  }
+  try {
+    const r = await api("/api/config", datos);
+    avisar(r.aviso || "Cambios guardados.");
+    cargarConfiguracion();
+  } catch (err) { fallo(err); }
+});
+$("#btnFabricantes").addEventListener("click", async (e) => {
+  e.target.disabled = true; e.target.textContent = "Descargando...";
+  try { const r = await api("/api/fabricantes", {}); avisar(`${r.cantidad} fabricantes cargados.`); await cargarEstado(); cargarConfiguracion(); }
+  catch (err) { fallo(err); }
+  e.target.disabled = false; e.target.textContent = "Descargar lista de fabricantes";
+});
+
+// Agregar a mano
+$("#btnAgregar").addEventListener("click", () => { $("#formAgregar").reset(); $("#dlgAgregar").showModal(); });
+$("#btnCancelarAgregar").addEventListener("click", () => $("#dlgAgregar").close());
+$("#formAgregar").addEventListener("submit", async (e) => {
+  e.preventDefault();
+  const f = e.target.elements;
+  try {
+    const r = await api("/api/dispositivo/agregar", { nombre: f.nombre.value, ip: f.ip.value, mac: f.mac.value });
+    $("#dlgAgregar").close(); avisar(r.mensaje); cargarDispositivos();
+  } catch (err) { fallo(err); }
+});
+
+// Aviso, inicio de sesión y cierre
+$("#btnAcepto").addEventListener("click", async () => {
+  try { await api("/api/aviso", { acepto: true }); $("#dlgAviso").close(); estado.aviso_aceptado = true; avisar("Listo. Ya puede escanear la red."); }
+  catch (err) { fallo(err); }
+});
+$("#dlgAviso").addEventListener("cancel", (e) => e.preventDefault());
+$("#btnNoAcepto").addEventListener("click", () => cerrarPrograma(false));
+$("#dlgLogin").addEventListener("cancel", (e) => e.preventDefault());
+$("#formLogin").addEventListener("submit", async (e) => {
+  e.preventDefault();
+  try {
+    await api("/api/login", { clave: $("#clave").value });
+    $("#clave").value = "";
+    $("#dlgLogin").close();
+    document.body.classList.remove("bloqueada");
+    iniciar();
+  }
+  catch (err) { fallo(err); }
+});
+async function cerrarPrograma(preguntar = true) {
+  if (preguntar && !await confirmar("Cerrar programa", "Se detiene el Detector. Para volver a abrirlo, ejecute el programa de nuevo.", "Cerrar programa")) return;
+  try { await api("/api/apagar", {}); } catch (err) { fallo(err); return; }
+  $("#dlgAviso").close();
+  document.body.replaceChildren(el("main", {}, el("div", { clase: "vacio" },
+    el("h2", { texto: "El Detector se cerró" }), el("p", { clase: "suave", texto: "Ya puede cerrar esta pestaña." }))));
+}
+$("#btnCerrar").addEventListener("click", () => cerrarPrograma());
+$("#btnSalirSesion").addEventListener("click", async () => {
+  try { await api("/api/logout", {}); } catch (err) { fallo(err); return; }
+  document.body.replaceChildren(el("main", {}, el("div", { clase: "vacio" },
+    el("h2", { texto: "Sesión cerrada" }), el("p", { clase: "suave", texto: "Recargue la página para volver a entrar." }))));
+});
+
+// Tema
+const TEMAS = ["automatico", "oscuro", "claro"];
+const NOMBRES_TEMA = { automatico: "Tema automático", oscuro: "Modo oscuro", claro: "Modo claro" };
+// Íconos en SVG para no depender de que la fuente del sistema traiga los símbolos
+const FORMAS_TEMA = {
+  automatico: [["circle", { cx: 8, cy: 8, r: 6.5, fill: "none" }], ["path", { d: "M8 1.5a6.5 6.5 0 0 1 0 13z", stroke: "none" }]],
+  oscuro: [["path", { d: "M13.5 9.8A6 6 0 0 1 6.2 2.5a6 6 0 1 0 7.3 7.3z", fill: "none" }]],
+  claro: [["circle", { cx: 8, cy: 8, r: 3, fill: "none" }],
+          ...[0, 45, 90, 135, 180, 225, 270, 315].map((g) => ["line", {
+            x1: 8 + 5 * Math.cos(g * Math.PI / 180), y1: 8 + 5 * Math.sin(g * Math.PI / 180),
+            x2: 8 + 6.8 * Math.cos(g * Math.PI / 180), y2: 8 + 6.8 * Math.sin(g * Math.PI / 180) }])],
+};
+function iconoTema(tema) {
+  const ns = "http://www.w3.org/2000/svg";
+  const svg = document.createElementNS(ns, "svg");
+  for (const [k, v] of Object.entries({ viewBox: "0 0 16 16", width: 16, height: 16, "aria-hidden": "true",
+                                         fill: "currentColor", stroke: "currentColor", "stroke-width": 1.5,
+                                         "stroke-linecap": "round", class: "icono-tema" })) svg.setAttribute(k, v);
+  for (const [forma, attrs] of FORMAS_TEMA[tema]) {
+    const nodo = document.createElementNS(ns, forma);
+    for (const [k, v] of Object.entries(attrs)) nodo.setAttribute(k, v);
+    svg.append(nodo);
+  }
+  return svg;
+}
+const temaActual = () => document.documentElement.dataset.tema || "automatico";
+function aplicarTema(tema) {
+  if (tema === "automatico") delete document.documentElement.dataset.tema;
+  else document.documentElement.dataset.tema = tema;
+  try { localStorage.setItem("detector-tema", tema); } catch (e) { /* sin almacenamiento */ }
+  $("#btnTema").replaceChildren(iconoTema(tema), el("span", { clase: "texto-tema", texto: NOMBRES_TEMA[tema] }));
+  $("#btnTema").setAttribute("aria-label", `${NOMBRES_TEMA[tema]}. Pulse para cambiar.`);
+}
+$("#btnTema").addEventListener("click", () => aplicarTema(TEMAS[(TEMAS.indexOf(temaActual()) + 1) % TEMAS.length]));
+aplicarTema(temaActual());
+
+// Navegación
+const cargadores = { historial: cargarHistorial, validacion: cargarValidacion, mantenimiento: cargarMantenimiento, ejecutable: cargarEjecutable, configuracion: cargarConfiguracion };
+function mostrarVista(nombre) {
+  for (const b of $$("nav.pestanas button")) b.setAttribute("aria-selected", String(b.dataset.vista === nombre));
+  for (const v of $$("section.vista")) v.classList.toggle("oculto", v.id !== `vista-${nombre}`);
+  if (cargadores[nombre]) cargadores[nombre]().catch(fallo);
+}
+for (const b of $$("nav.pestanas button")) b.addEventListener("click", () => mostrarVista(b.dataset.vista));
+for (const b of $$("[data-filtro]")) b.addEventListener("click", () => {
+  filtro = b.dataset.filtro;
+  for (const x of $$("[data-filtro]")) x.setAttribute("aria-pressed", String(x === b));
+  pintarTabla();
+});
+$("#buscar").addEventListener("input", pintarTabla);
+
+async function iniciar() {
+  try {
+    await cargarEstado();
+    await cargarDispositivos();
+    if (estado.en_curso) seguirEscaneo();
+  } catch (err) { fallo(err); }
+}
+iniciar();
+</script>
+</body>
+</html>
