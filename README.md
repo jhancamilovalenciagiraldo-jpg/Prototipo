@@ -191,15 +191,18 @@ detector-red                          # el comando queda disponible
 ### Opción 3 — Automática con GitHub
 
 El archivo `.github/workflows/compilar.yml` compila los ejecutables de
-Windows, Linux y macOS cada vez que se publica una versión:
+Windows, Linux y macOS, prueba que cada uno abra la interfaz y los adjunta a
+la versión publicada:
 
-```bash
-git tag v0.2.0
-git push origin v0.2.0
-```
+1. En el repositorio, **Releases → Create a new release**.
+2. En *Choose a tag*, escriba la versión (por ejemplo `v0.8.0`) y elija
+   *Create new tag on publish*.
+3. Ponga un título y presione **Publish release**.
 
-Los archivos quedan en la pestaña **Releases** del repositorio, listos para
-descargar.
+En unos minutos los ejecutables y sus huellas `.sha256` aparecen en esa
+versión, listos para descargar. Para compilar sin publicar: pestaña
+**Actions → Compilar ejecutables → Run workflow** (los archivos quedan en el
+resumen de esa ejecución).
 
 ## Escaneo periódico (empresas)
 

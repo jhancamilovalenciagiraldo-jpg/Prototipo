@@ -1,13 +1,12 @@
-# Compila los ejecutables de Windows, Linux y macOS en los servidores de GitHub.
-# Se activa al subir una etiqueta de versión:
-#     git tag v0.2.0
-#     git push origin v0.2.0
-# y publica los archivos en la sección "Releases" del repositorio.
+# Compila los ejecutables de Windows, Linux y macOS en los servidores de GitHub,
+# comprueba que cada uno abre la interfaz y, al publicar una versión desde la
+# pestaña "Releases" de GitHub, adjunta los ejecutables a esa versión.
+# También se puede ejecutar a mano desde la pestaña "Actions".
 name: Compilar ejecutables
 
 on:
-  push:
-    tags: ["v*"]
+  release:
+    types: [published]
   workflow_dispatch:
 
 # Permisos mínimos por defecto; solo la publicación pide escritura
@@ -39,6 +38,29 @@ jobs:
           python-version: "3.12"
       - run: python -m pip install pyinstaller
       - run: python -m PyInstaller --onefile --console --collect-data detector_red --name DetectorRed-${{ runner.os }} lanzador.py
+
+      # Abre el ejecutable recién armado, comprueba que sirve la página y lo cierra.
+      # Así no se publica un ejecutable al que le falte la interfaz.
+      - name: Probar el ejecutable
+        shell: bash
+        run: |
+          EXE="dist/DetectorRed-${{ runner.os }}"
+          if [ "${{ runner.os }}" = "Windows" ]; then EXE="$EXE.exe"; fi
+          export DETECTOR_RED_DATOS="$RUNNER_TEMP/datos"
+          "$EXE" --version
+          "$EXE" --sin-navegador --puerto 8799 > "$RUNNER_TEMP/servidor.log" 2>&1 &
+          for i in $(seq 1 40); do
+            if curl -sf http://127.0.0.1:8799/ -o "$RUNNER_TEMP/pagina.html"; then break; fi
+            sleep 1
+          done
+          cat "$RUNNER_TEMP/servidor.log"
+          grep -q "<title>Detector de red</title>" "$RUNNER_TEMP/pagina.html"
+          curl -sf http://127.0.0.1:8799/api/estado | grep -q '"version"'
+          TOKEN=$(grep -o 'name="token" content="[^"]*"' "$RUNNER_TEMP/pagina.html" | cut -d'"' -f4)
+          curl -sf -X POST -H "X-Token: $TOKEN" -H "Content-Type: application/json" \
+               -d '{}' http://127.0.0.1:8799/api/apagar
+          echo "El ejecutable abre la interfaz correctamente."
+
       # Huella SHA-256 de cada ejecutable, publicada junto a la versión
       - run: python instalador/sumas.py
       - uses: actions/upload-artifact@v4
@@ -46,7 +68,7 @@ jobs:
           name: DetectorRed-${{ runner.os }}
           path: dist/*
       - name: Publicar en Releases
-        if: startsWith(github.ref, 'refs/tags/')
+        if: github.event_name == 'release'
         uses: softprops/action-gh-release@v2
         with:
           files: dist/*
