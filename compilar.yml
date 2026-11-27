@@ -1,0 +1,52 @@
+# Compila los ejecutables de Windows, Linux y macOS en los servidores de GitHub.
+# Se activa al subir una etiqueta de versión:
+#     git tag v0.2.0
+#     git push origin v0.2.0
+# y publica los archivos en la sección "Releases" del repositorio.
+name: Compilar ejecutables
+
+on:
+  push:
+    tags: ["v*"]
+  workflow_dispatch:
+
+# Permisos mínimos por defecto; solo la publicación pide escritura
+permissions:
+  contents: read
+
+jobs:
+  pruebas:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - run: python -m unittest discover tests -v
+
+  compilar:
+    needs: pruebas
+    permissions:
+      contents: write
+    strategy:
+      matrix:
+        os: [windows-latest, ubuntu-latest, macos-latest]
+    runs-on: ${{ matrix.os }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - run: python -m pip install pyinstaller
+      - run: python -m PyInstaller --onefile --console --collect-data detector_red --name DetectorRed-${{ runner.os }} lanzador.py
+      # Huella SHA-256 de cada ejecutable, publicada junto a la versión
+      - run: python instalador/sumas.py
+      - uses: actions/upload-artifact@v4
+        with:
+          name: DetectorRed-${{ runner.os }}
+          path: dist/*
+      - name: Publicar en Releases
+        if: startsWith(github.ref, 'refs/tags/')
+        uses: softprops/action-gh-release@v2
+        with:
+          files: dist/*
