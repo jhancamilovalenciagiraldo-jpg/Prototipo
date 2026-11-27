@@ -1,0 +1,33 @@
+[build-system]
+requires = ["setuptools>=61"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "detector-red"
+version = "0.8.0"
+description = "Inventario de dispositivos de la red local por ARP, para routers de gama baja a empresarial."
+readme = "README.md"
+requires-python = ">=3.9"
+license = { text = "MIT" }
+authors = [{ name = "Jhan Camilo Valencia Giraldo" }]
+keywords = ["red", "arp", "inventario", "wifi", "escaner"]
+classifiers = [
+    "Programming Language :: Python :: 3",
+    "License :: OSI Approved :: MIT License",
+    "Operating System :: OS Independent",
+    "Environment :: Console",
+    "Topic :: System :: Networking :: Monitoring",
+]
+# Sin dependencias externas: solo la biblioteca estándar de Python
+dependencies = []
+
+[project.scripts]
+# Al instalar, crea el comando "detector-red" en la terminal
+detector-red = "detector_red.main:main"
+
+[tool.setuptools]
+packages = ["detector_red"]
+
+[tool.setuptools.package-data]
+# La página de la interfaz web viaja dentro del paquete
+detector_red = ["web/*.html"]
